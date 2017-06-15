@@ -1,6 +1,6 @@
 # apartment-vue2
 
-> A Vue.js project
+> A Personal Vue.js project
 
 ## Build Setup
 
