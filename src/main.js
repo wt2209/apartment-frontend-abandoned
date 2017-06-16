@@ -6,6 +6,7 @@ import App from './App'
 import axios from 'axios'
 import router from './router'
 import store from './store/index'
+import _ from 'lodash'
 Vue.config.productionTip = false
 
 Vue.use(Vuex)
