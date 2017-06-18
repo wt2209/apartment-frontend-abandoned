@@ -20,19 +20,20 @@
             <div class="box-header">
               <!--<h3 class="box-title"></h3>-->
               <!--<div class="input-group input-group-sm" style="width: 200px;"></div>-->
-                <form class="form-inline col-md-4"  id="rooms-search-form">
+                <div class="form-inline col-md-4" >
                   <div class="form-group">
-                    <input class="form-control" v-model="keyWord" placeholder="搜索">
+                    <input class="form-control" v-model="keyWord" placeholder="搜索，按下回车后开始搜索">
                   </div>
                   <select class="form-control" v-model="roomType">
-                    <option value="0">类型</option>
-                    <option v-for="roomType in roomTypes" :value="roomType.id" >{{roomType.name}}</option>
+                    <option value=0>类型</option>
+                    <option v-for="roomType in this.$store.state.room.roomTypes" :value="roomType.id" >{{roomType.name}}</option>
                   </select>
-                </form>
+                </div>
               <!--<div class="box-tools"></div>-->
             </div>
             <!-- /.box-header -->
             <div class="box-body table-responsive no-padding">
+              {{this.$store.state.rooms}}
               <table class="table table-hover">
                 <thead>
                   <tr>
@@ -45,7 +46,8 @@
                 </thead>
 
                 <tbody>
-                  <tr v-for="room in this.rooms">
+                  <tr v-for="room in this.$store.state.room.rooms">
+
                     <td>{{ room.title }}</td>
                     <td>{{ room.type.name }}</td>
                     <td>{{ room.status ? '正在使用' : '空房' }}</td>
@@ -67,9 +69,9 @@
     <div class=" bottom-message">
       <div class="panel-body">
 
-          房间总数：<b>{{counter.total}}</b> 套<br>
-          正在使用：<b>{{counter.using}}</b> 套<br>
-          空房间数：<b>{{counter.empty}}</b> 套
+          房间总数：<b>{{this.$store.getters.counter.total}}</b> 套<br>
+          正在使用：<b>{{this.$store.getters.counter.using}}</b> 套<br>
+          空房间数：<b>{{this.$store.getters.counter.empty}}</b> 套
 
       </div>
     </div>
@@ -80,7 +82,7 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapState } from 'vuex'
   import _ from 'lodash'
 
   export default {
@@ -91,28 +93,12 @@
         roomType:0
       }
     },
-    computed:{
-      rooms(){
-        return this.$store.state.room.rooms
-      },
-      roomTypes(){
-        return this.$store.state.room.roomTypes
-      },
-      counter(){
-        let _counter = _.countBy(this.rooms, room => room.status);
-        return {
-          using: _counter[1],
-          empty: _counter[0],
-          total: _counter[0] + _counter[1]
-        }
-      }
-    },
     watch: {
       keyWord(){
-        this.searchRooms()
+        this.searchRooms();
       },
       roomType(){
-        this.searchRooms()
+        this.searchRooms();
       }
     },
     created(){
@@ -123,14 +109,11 @@
         this.$store.dispatch('getAllRooms')
         this.$store.dispatch('getRoomTypes')
       },
-      searchRooms:_.debounce(
-              function(){
-                const keyWord = this.keyWord;
-                const roomType = this.roomType
-                this.$store.dispatch('searchRooms',{keyWord, roomType})
-              },
-              500
-      )
+      searchRooms(){
+        const keyWord = this.keyWord;
+        const roomType = this.roomType;
+        this.$store.dispatch('searchRooms',{keyWord, roomType})
+      }
     }
   }
 </script>

@@ -6,31 +6,43 @@ import _ from 'lodash'
 
 const state = {
     rooms:[],
+    pageConfig:{},
     roomTypes:[],
-    keyWord:''
 }
 
 const getters = {
-    rooms:state=>state.rooms
+    counter(state){
+        let ret = {using:0, empty:0, total:0}
+        _.map(state.rooms, function(room){
+            if (room.status == 1) {
+                ret.using ++;
+            }else {
+                ret.empty ++;
+            }
+            ret.total ++
+        });
+        return ret;
+    }
 }
 
 const actions = {
     getAllRooms({commit}){
-        RoomApi.getRooms((rooms)=>{
-            commit('setStateRooms', rooms)
+        RoomApi.getRooms((response)=>{
+            commit('setStateRooms', response)
         })
 
     },
     getRoomTypes ({commit}){
-        RoomApi.getRoomTypes((roomTypes)=>{
-            commit('setStateRoomTypes', roomTypes)
+        RoomApi.getRoomTypes((response)=>{
+            commit('setStateRoomTypes', response)
         })
     },
     searchRooms ({commit}, {keyWord, roomType}) {
-        RoomApi.roomsSearch((rooms)=>{
-            //_.where(rooms, {'title':keyWord})
+        RoomApi.roomsSearch((response)=>{
+            console.log(response.data)
+
             let ret = [];
-            _.map(rooms, function(room){
+            _.map(response.data, function(room){
                 if (keyWord && roomType){
                     if (room.title === keyWord && room.type.id ===roomType) {
                         ret.push(room);
@@ -46,10 +58,9 @@ const actions = {
                 } else {
                     ret.push(room);
                 }
-
             })
-
-            commit('setStateRooms', ret)
+            response.data = ret;
+            commit('setStateRooms', response)
         })
 
     }
@@ -57,9 +68,12 @@ const actions = {
 }
 
 const mutations = {
-    setStateRooms(state, rooms){
-        state.rooms = rooms
+    setStateRooms(state, response){
+        state.rooms = response.data;
         console.log(state.rooms)
+        //_.unset(response, "data")
+        state.pageConfig = response
+        console.log(state.pageConfig)
     },
     setStateRoomTypes(state, roomTypes) {
         state.roomTypes = roomTypes
